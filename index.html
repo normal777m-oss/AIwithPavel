@@ -1606,37 +1606,46 @@
 </footer>
 
 <script>
-    // Lightbox Functionality
-    const modal = document.getElementById("imageModal");
-    const modalImg = document.getElementById("img01");
-    const images = document.querySelectorAll('.gallery-img');
-    
-    images.forEach(img => {
-        img.onclick = function(){
-            modal.style.display = "flex";
-            modalImg.src = this.src;
-            modalImg.alt = this.alt;
+    // Дефиниране на променливи
+    let modal, modalImg, span;
+
+    // Функция за инициализация на lightbox
+    function initLightbox() {
+        modal = document.getElementById("imageModal");
+        modalImg = document.getElementById("img01");
+        const images = document.querySelectorAll('.gallery-img');
+        span = document.getElementsByClassName("close")[0];
+        
+        // Проверка дали елементите съществуват
+        if (!modal || !modalImg) {
+            console.log("Lightbox elements not found");
+            return;
         }
-    });
-    
-    const span = document.getElementsByClassName("close")[0];
-    if (span) {
-        span.onclick = function() { 
-            modal.style.display = "none";
+        
+        images.forEach(img => {
+            img.onclick = function(){
+                modal.style.display = "flex";
+                modalImg.src = this.src;
+                modalImg.alt = this.alt;
+            }
+        });
+        
+        if (span) {
+            span.onclick = function() { 
+                modal.style.display = "none";
+            }
         }
-    }
-    
-    // Close on background click
-    modal.onclick = function(event) {
-        if (event.target === modal) {
-            modal.style.display = "none";
+        
+        // Close on background click
+        modal.onclick = function(event) {
+            if (event.target === modal) {
+                modal.style.display = "none";
+            }
         }
     }
 
     // SCROLL TO TOP BUTTON
     const mybutton = document.getElementById("scrollTopBtn");
-
-    window.onscroll = function() {scrollFunction()};
 
     function scrollFunction() {
         if (document.body.scrollTop > 300 || document.documentElement.scrollTop > 300) {
@@ -1654,22 +1663,93 @@
     }
 
     // FAQ ACCORDION FUNCTIONALITY
-    const faqQuestions = document.querySelectorAll(".faq-question");
-
-    faqQuestions.forEach(question => {
-        question.addEventListener("click", () => {
-            // Toggle active class
-            question.classList.toggle("active");
-
-            // Toggle panel visibility
-            const panel = question.nextElementSibling;
-            if (panel.style.maxHeight) {
-                panel.style.maxHeight = null;
-            } else {
-                panel.style.maxHeight = panel.scrollHeight + "px";
+    function initFAQ() {
+        const faqItems = document.querySelectorAll('.faq-item');
+        
+        faqItems.forEach(item => {
+            const question = item.querySelector('.faq-question');
+            const answer = item.querySelector('.faq-answer');
+            
+            if (question && answer) {
+                question.addEventListener('click', function() {
+                    const isOpen = question.classList.contains('active');
+                    
+                    // Затваряме всички други FAQ
+                    faqItems.forEach(otherItem => {
+                        if (otherItem !== item) {
+                            const otherQuestion = otherItem.querySelector('.faq-question');
+                            const otherAnswer = otherItem.querySelector('.faq-answer');
+                            if (otherQuestion && otherAnswer) {
+                                otherQuestion.classList.remove('active');
+                                otherAnswer.style.maxHeight = '0';
+                            }
+                        }
+                    });
+                    
+                    // Превключваме текущия FAQ
+                    if (isOpen) {
+                        question.classList.remove('active');
+                        answer.style.maxHeight = '0';
+                    } else {
+                        question.classList.add('active');
+                        answer.style.maxHeight = answer.scrollHeight + 'px';
+                    }
+                });
             }
         });
+    }
+
+    // VISIT COUNTER FUNCTIONALITY
+    function initVisitCounter() {
+        const counter = document.querySelector('.visit-counter');
+        if (counter) {
+            window.addEventListener('scroll', function() {
+                if (window.scrollY > 300) {
+                    counter.classList.add('scrolled');
+                } else {
+                    counter.classList.remove('scrolled');
+                }
+            });
+        }
+        
+        // Случайно увеличение на брояча
+        const visitCount = document.getElementById('visitCount');
+        if (visitCount) {
+            let currentCount = parseInt(visitCount.textContent) || 142;
+            
+            setInterval(() => {
+                const increment = Math.floor(Math.random() * 3) + 1;
+                currentCount += increment;
+                visitCount.textContent = currentCount;
+                
+                // Анимация при обновяване
+                visitCount.style.transform = 'scale(1.2)';
+                setTimeout(() => {
+                    visitCount.style.transform = 'scale(1)';
+                }, 300);
+            }, Math.random() * 30000 + 30000);
+        }
+    }
+
+    // Инициализация на всички функции когато DOM е готов
+    document.addEventListener('DOMContentLoaded', function() {
+        // Инициализираме lightbox
+        initLightbox();
+        
+        // Инициализираме FAQ
+        initFAQ();
+        
+        // Инициализираме visit counter
+        initVisitCounter();
+        
+        // Инициализираме scroll to top button
+        if (mybutton) {
+            window.onscroll = scrollFunction;
+        }
     });
+
+    // Глобална функция за scroll to top (трябва да е достъпна)
+    window.topFunction = topFunction;
 </script>
 
 <div id="imageModal" class="modal">
